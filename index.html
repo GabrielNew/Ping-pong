@@ -72,8 +72,14 @@
         }
 
         const score = {
-            human: 1,
-            cpu: 2,
+            human: 0,
+            cpu: 0,
+            increaseHuman: function(){
+                this.human++
+            },
+            increaseCpu: function(){
+                this.cpu++
+            },
             draw: function(){
                 canvasContext.font = "bold 72px Arial"
                 canvasContext.textAlign = "center"
@@ -85,19 +91,63 @@
         }
 
         const ball = {
-            x:370,
-            y:120,
+            x:0,
+            y:0,
             r: 20,
             speed: 5,
+            _directionY: 1,
+            _directionX: 1,
+            _calcPosition: function(){
+                if(this.x > field.w - this.r - rightPadle.w - gapX){
+                    if((this.y + this.r > rightPadle.y) && (this.y - this.r < rightPadle.y + rightPadle.h))
+                    {
+                        this._reverseX()
+                    }
+                    else 
+                    {
+                        score.increaseHuman()
+                        this._pointUp()
+                    }
+                }
+                if(this.x < this.r + leftPadle.w + gapX){
+                    if(this.y + this.r  > leftPadle.y && this.y - this.r < leftPadle.y + leftPadle.h)
+                    {
+                        this._reverseX()
+                    }
+                    else{
+                        score.increaseCpu()
+                        this._pointUp()
+                    }
+                }
+                if(
+                    (this.y - this.r < 0 && this._directionY < 0) ||
+                    (this.y > field.h - this.r && this._directionY > 0)
+                  )
+                {
+                    this._reverseY()
+                }
+            },
+            _pointUp: function(){
+                this.x = field.w/2
+                this.h = field.h/2
+            },
+            _reverseY: function(){
+                this._directionY *= -1
+            },            
+            _reverseX: function(){
+                this._directionX *= -1
+            },
             _move: function(){
-                this.x += 1 * this.speed
-                this.y += 1 * this.speed
+                this.x += this._directionX * this.speed
+                this.y += this._directionY * this.speed
             },
             draw: function(){
                 canvasContext.fillStyle = ("#ffffff")
                 canvasContext.beginPath()
                 canvasContext.arc(this.x, this.y, this.r, 0, 2 * Math.PI, false)
                 canvasContext.fill()
+
+                this._calcPosition()
                 this._move()
             }
         }
