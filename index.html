@@ -21,6 +21,8 @@
         const lineWidth = 15
         const gapX = 10
 
+        const mouse = {x:0, y:0}
+
         const field = {
            w: window.innerWidth,
            h: window.innerHeight,
@@ -41,12 +43,16 @@
 
         const leftPadle = {
             x:gapX,
-            y:100,
+            y:0,
             w:line.w,
             h:200,
+            _move: function(){
+                this.y = mouse.y - this.h/2
+            },
             draw: function(){
                 canvasContext.fillStyle = ("#ffffff")
                 canvasContext.fillRect(this.x, this.y, this.w, this.h)
+                this._move()
             }
         }
 
@@ -55,9 +61,13 @@
             y:100,
             w:line.w,
             h:200,
+            _move: function(){
+                this.y = ball.y
+            },
             draw: function(){
                 canvasContext.fillStyle = ("#ffffff")
                 canvasContext.fillRect(this.x, this.y, this.w, this.h)
+                this._move()
             }
         }
 
@@ -75,17 +85,22 @@
         }
 
         const ball = {
-            x:320,
+            x:370,
             y:120,
             r: 20,
+            speed: 5,
+            _move: function(){
+                this.x += 1 * this.speed
+                this.y += 1 * this.speed
+            },
             draw: function(){
                 canvasContext.fillStyle = ("#ffffff")
                 canvasContext.beginPath()
-                canvasContext.arc(this.x, this.w, this.r, 0, 2 * Math.PI, false)
+                canvasContext.arc(this.x, this.y, this.r, 0, 2 * Math.PI, false)
                 canvasContext.fill()
+                this._move()
             }
         }
-        
         
         function setup()
         {
@@ -107,8 +122,31 @@
             ball.draw()            
         }
 
+        window.animateFrame = (function(){
+            return (
+                window.requestAnimationFrame ||
+                window.webkitRequestAnimationFrame ||
+                window.mozRequestAnimationFrame ||
+                window.oRequestAnimationFrame ||
+                window.msRequestAnimationFrame ||
+                function(callback){
+                    return window.setTimeout(callback, 1000/60)
+                }
+            )
+        })()
+
+        function main(){
+            animateFrame(main)
+            draw()
+        }
+
         setup()
-        draw()
+        main()
+
+        canvasElement.addEventListener("mousemove", function(e){
+            mouse.x = e.pageX
+            mouse.y = e.pageY
+        })
     </script>
 </body>
 </html>
